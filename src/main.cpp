@@ -4,32 +4,35 @@
 uint8_t DOUT_PIN = 15;//A1
 uint8_t SCK_PIN  = 14;//A0
 
-float     weight_of_standard = 1571.0;
-float     conversion_rate    = 0.035274;
-const int z                  = 10;      
-float     calibration_value[z];         
-float     calibration_factor = 0;   
+//float     weight_of_standard = 201; 
+const float CALIBRATION_FACTOR = 3.80;//3.81
+const float CALIBRATION_THRESHOLD = 5.00;//grams
+const float CALIBRATION_RATE    = 0.035274;//unces to grams
 
 HX711 scale;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Init a loadcell callibration with " + String(weight_of_standard, 2) + " gramms");
+  Serial.println("Init a loadcell ... ");
+  scale.begin(DOUT_PIN, SCK_PIN);       
+  scale.set_scale();                    
+  scale.tare();                         
+  scale.set_scale(CALIBRATION_FACTOR);  
+}
 
-  scale.begin(DOUT_PIN, SCK_PIN);
-  scale.set_scale();
-  scale.tare();          
-  
-  Serial.println("You have 10 seconds to set your known load");  
-  delay(10000);                                                                           
-  Serial.print("calibration factor: ");                                                   
-  for (int i = 0; i < z; i++) {                                                           
-    calibration_value[i] = scale.get_units(1) / (weight_of_standard / conversion_rate);   //to grams
-    calibration_factor += calibration_value[i];                                           
+float getWeight() {
+  float ounces = scale.get_units(10);
+  float grams = ounces * CALIBRATION_RATE; 
+
+  if (grams < CALIBRATION_THRESHOLD) {
+    return 0;
   }
-  calibration_factor = calibration_factor / z;                                            
-  Serial.println(calibration_factor); 
+
+  return grams;
 }
 
 void loop() {
+  Serial.println("Weight grams: " + String(getWeight())); 
+
+  delay(50);       
 }

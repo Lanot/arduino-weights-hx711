@@ -4,7 +4,7 @@
 uint8_t DOUT_PIN = 15;//A1
 uint8_t SCK_PIN  = 14;//A0
 
-float     weight_of_standard = 1571.0;
+float     weight_of_standard = 201;
 float     conversion_rate    = 0.035274;
 const int z                  = 10;      
 float     calibration_value[z];         
